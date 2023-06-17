@@ -6,6 +6,7 @@ const cors = require('cors');
 // Enable CORS
 app.use(cors());
 
+// First endpoint
 app.get('/api/films', async (req, res) => {
     try {
         // Get the filter parameter value from the request query
@@ -28,6 +29,7 @@ app.get('/api/films', async (req, res) => {
     }
 });
 
+// Second endpoint
 app.get('/api/films/:id', async (req, res) => {
     try {
         const { id } = req.params;
