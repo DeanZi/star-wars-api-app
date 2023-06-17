@@ -1,51 +1,20 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import axios from 'axios';
-import { TextField, Button, Typography, makeStyles, List, Paper, ListItem, ListItemText } from '@material-ui/core';
+import { TextField, Button, Typography, List, Paper, ListItem, ListItemText } from '@material-ui/core';
 
 import ResultsTable from './ResultsTable';
+import './FilmsPage.css';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
-const useStyles = makeStyles((theme) => ({
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: theme.spacing(2),
-    },
-    searchSection: {
-        marginBottom: theme.spacing(2),
-        display: 'flex',
-        alignItems: 'center',
-    },
-    searchInput: {
-        marginRight: theme.spacing(2),
-    },
-    resultsSection: {
-        width: '100%',
-    },
-    filmItem: {
-        marginBottom: theme.spacing(1),
-        backgroundColor: theme.palette.background.paper,
-        borderRadius: theme.shape.borderRadius,
-        boxShadow: theme.shadows[2],
-        '&:hover': {
-            backgroundColor: theme.palette.action.hover,
-        },
-    },
-    selectedFilm: {
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.primary.contrastText,
-    },
-}));
-
-
 const FilmsPage = () => {
-    const classes = useStyles();
     const [searchQuery, setSearchQuery] = useState('');
     const [films, setFilms] = useState([]);
     const [selectedFilm, setSelectedFilm] = useState(null);
     const [filmCharacters, setFilmCharacters] = useState([]);
+    const [page] = useState(0);
+    const [rowsPerPage] = useState(10);
+
 
     const handleSearch = async () => {
         try {
@@ -57,7 +26,8 @@ const FilmsPage = () => {
 
             }
             if (films.length === 1) {
-                //Duplicated bit a code can be a single method
+                //TODO
+                // Move this repeated bit a code can be a single method
                 const urlParts = films[0].url.split('/');
                 const key = urlParts[urlParts.length - 2];
                 await handleFilmSelection(key);
@@ -69,11 +39,14 @@ const FilmsPage = () => {
         }
     };
 
-    const handleKeyPress = (event) => {
-        if (event.key === 'Enter') {
-            handleSearch();
-        }
-    };
+    //TODO
+    // Make the search start on enter - this is not working
+
+    // const handleKeyPress = (event) => {
+    //     if (event.key === 'Enter') {
+    //         handleSearch();
+    //     }
+    //};
 
     const handleFilmSelection = async (filmId) => {
         try {
@@ -94,7 +67,7 @@ const FilmsPage = () => {
 
 
     return (
-        <div className={classes.container}>
+        <div className="container">
             <Typography variant="h4" component="h2" gutterBottom>
                 Star Wars Films
             </Typography>
@@ -103,11 +76,11 @@ const FilmsPage = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Button variant="contained" color="primary" onKeyDown={handleKeyPress} onClick={handleSearch}>
+            <Button variant="contained" color="primary" onClick={handleSearch}>
                 Search
             </Button>
             {films.length > 0 && (
-                <div className={classes.resultsSection}>
+                <div className="resultsSection">
                     <Typography variant="h5" component="h3" gutterBottom>
                         Results:
                     </Typography>
@@ -122,7 +95,7 @@ const FilmsPage = () => {
                                     key={key}
                                     button
                                     onClick={() => handleFilmSelection(key)}
-                                    className={`${classes.filmItem} ${isSelected ? classes.selectedFilm : ''}`}
+                                    className={`filmItem ${isSelected ? selectedFilm : ''}`}
                                 >
                                     <ListItemText primary={film.title} secondary={`Release Date: ${film.release_date}`} />
                                 </ListItem>
@@ -132,7 +105,8 @@ const FilmsPage = () => {
                 </div>
             )}
             {(films.length === 1 || selectedFilm) && filmCharacters.length > 0 && (
-                <ResultsTable filmCharacters={filmCharacters} />
+                <ResultsTable filmCharacters={filmCharacters} page={page} rowsPerPage={rowsPerPage} />
+
             )}
         </div>
     );
