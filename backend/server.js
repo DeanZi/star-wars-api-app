@@ -1,6 +1,10 @@
 const express = require('express');
 const swapi = require('swapi-node');
 const app = express();
+const cors = require('cors');
+
+// Enable CORS
+app.use(cors());
 
 app.get('/api/films', async (req, res) => {
     try {
@@ -23,6 +27,49 @@ app.get('/api/films', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+app.get('/api/films/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { expand } = req.query;
+        let film = await swapi.get(`films/${id}`);
+
+        if (expand) {
+            const expandFields = expand.split(',');
+            film = await expandSubresource(film, expandFields);
+        }
+
+        res.json(film);
+    } catch (error) {
+        console.error('Error fetching film data:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+async function expandSubresource(resource, expandFields) {
+
+    for (const field of expandFields) {
+        if (resource[field]) {
+            resource[field] = await expandField(resource[field]);
+        }
+    }
+
+    return resource;
+}
+
+async function expandField(field) {
+    if (Array.isArray(field)) {
+        console.log(`This is the field ${field}`)
+        return Promise.all(field.map(async (url) => {
+            console.log(`This is the mapped url ${url}`)
+            return await swapi.get(url);
+        }));
+    } else {
+        return swapi.get(field);
+    }
+}
+
+
 
 const port = 8000; // Replace with your desired port number
 app.listen(port, () => {

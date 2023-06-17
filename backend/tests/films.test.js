@@ -41,3 +41,18 @@ describe('Test /api/films?filter=the', () => {
             });
     }).timeout(10000);
 });
+
+describe('Test /api/films/1?expand=characters', () => {
+    it('Return "A New Hope" with expanded characters (at least 1 character in list)', (done) => {
+        chai.request(server)
+            .get('/api/films/1?expand=characters')
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res.body).to.be.an('object');
+                expect(res.body.title).to.equal('A New Hope');
+                expect(res.body.characters).to.be.an('array');
+                expect(res.body.characters.length).to.be.greaterThan(0);
+                done();
+            });
+    }).timeout(10000);
+});
