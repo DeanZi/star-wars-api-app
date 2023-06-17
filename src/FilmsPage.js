@@ -39,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+
 const FilmsPage = () => {
     const classes = useStyles();
     const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +55,12 @@ const FilmsPage = () => {
             }else{
                 response = await axios.get(`${API_BASE_URL}/films?title=${searchQuery}`);
 
+            }
+            if (films.length === 1) {
+                //Duplicated bit a code can be a single method
+                const urlParts = films[0].url.split('/');
+                const key = urlParts[urlParts.length - 2];
+                await handleFilmSelection(key);
             }
             setFilms(response.data);
             setSelectedFilm(null);
@@ -74,9 +81,9 @@ const FilmsPage = () => {
             const film = response.data;
             const characterUrls = film.characters;
 
-            const characterPromises = characterUrls.map(url => axios.get(url));
+            const characterPromises = characterUrls.map((url) => axios.get(url));
             const characterResponses = await Promise.all(characterPromises);
-            const characters = characterResponses.map(response => response.data);
+            const characters = characterResponses.map((response) => response.data);
 
             setFilmCharacters(characters);
             setSelectedFilm(filmId);
@@ -84,7 +91,6 @@ const FilmsPage = () => {
             console.error('Error fetching characters:', error);
         }
     };
-
 
 
     return (
@@ -125,7 +131,9 @@ const FilmsPage = () => {
                     </List>
                 </div>
             )}
-            {films.length === 1 && filmCharacters.length > 0 && <ResultsTable filmCharacters={filmCharacters} />}
+            {(films.length === 1 || selectedFilm) && filmCharacters.length > 0 && (
+                <ResultsTable filmCharacters={filmCharacters} />
+            )}
         </div>
     );
 };
