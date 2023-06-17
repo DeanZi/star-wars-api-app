@@ -1,14 +1,15 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import FilmsPage from './FilmsPage';
+import LandingPage from "./LandingPage";
 
 const App = () => {
     return (
         <Router>
-            <Switch>
-                <Route exact path="/" component={FilmsPage} />
-                <Route path="/films" component={FilmsPage} />
-            </Switch>
+            <Routes>
+                <Route exact path="/" element={<LandingPage />} />
+                <Route path="/films" element={<FilmsPage />} />
+            </Routes>
         </Router>
     );
 };
